@@ -21,6 +21,9 @@ import (
 // SideType define side type of order
 type SideType string
 
+// PositionSideType define position side type of order
+type PositionSideType string
+
 // OrderType define order type
 type OrderType string
 
@@ -56,12 +59,17 @@ const (
 	SideTypeBuy  SideType = "BUY"
 	SideTypeSell SideType = "SELL"
 
-	OrderTypeLimit            OrderType = "LIMIT"
-	OrderTypeMarket           OrderType = "MARKET"
-	OrderTypeStop             OrderType = "STOP"
-	OrderTypeStopMarket       OrderType = "STOP_MARKET"
-	OrderTypeTakeProfit       OrderType = "TAKE_PROFIT"
-	OrderTypeTakeProfitMarket OrderType = "TAKE_PROFIT_MARKET"
+	PositionSideTypeBoth  PositionSideType = "BOTH"
+	PositionSideTypeLong  PositionSideType = "LONG"
+	PositionSideTypeShort PositionSideType = "SHORT"
+
+	OrderTypeLimit              OrderType = "LIMIT"
+	OrderTypeMarket             OrderType = "MARKET"
+	OrderTypeStop               OrderType = "STOP"
+	OrderTypeStopMarket         OrderType = "STOP_MARKET"
+	OrderTypeTakeProfit         OrderType = "TAKE_PROFIT"
+	OrderTypeTakeProfitMarket   OrderType = "TAKE_PROFIT_MARKET"
+	OrderTypeTrailingStopMarket OrderType = "TRAILING_STOP_MARKET"
 
 	TimeInForceTypeGTC TimeInForceType = "GTC" // Good Till Cancel
 	TimeInForceTypeIOC TimeInForceType = "IOC" // Immediate or Cancel
@@ -147,6 +155,7 @@ type Client struct {
 	HTTPClient *http.Client
 	Debug      bool
 	Logger     *log.Logger
+	TimeOffset int64
 	do         doFunc
 }
 
@@ -171,7 +180,7 @@ func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
 		r.setParam(recvWindowKey, r.recvWindow)
 	}
 	if r.secType == secTypeSigned {
-		r.setParam(timestampKey, currentTimestamp())
+		r.setParam(timestampKey, currentTimestamp()-c.TimeOffset)
 	}
 	queryString := r.query.Encode()
 	body := &bytes.Buffer{}
@@ -266,6 +275,11 @@ func (c *Client) NewPingService() *PingService {
 // NewServerTimeService init server time service
 func (c *Client) NewServerTimeService() *ServerTimeService {
 	return &ServerTimeService{c: c}
+}
+
+// NewSetServerTimeService init set server time service
+func (c *Client) NewSetServerTimeService() *SetServerTimeService {
+	return &SetServerTimeService{c: c}
 }
 
 // NewDepthService init depth service
@@ -416,4 +430,14 @@ func (c *Client) NewChangeMarginTypeService() *ChangeMarginTypeService {
 // NewUpdatePositionMarginService init update position margin
 func (c *Client) NewUpdatePositionMarginService() *UpdatePositionMarginService {
 	return &UpdatePositionMarginService{c: c}
+}
+
+// ChangePositionModeService init change position mode service
+func (c *Client) NewChangePositionModeService() *ChangePositionModeService {
+	return &ChangePositionModeService{c: c}
+}
+
+// GetPositionModeService init get position mode service
+func (c *Client) NewGetPositionModeService() *GetPositionModeService {
+	return &GetPositionModeService{c: c}
 }

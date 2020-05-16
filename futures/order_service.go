@@ -10,6 +10,7 @@ type CreateOrderService struct {
 	c                *Client
 	symbol           string
 	side             SideType
+	positionSide     *PositionSideType
 	orderType        OrderType
 	timeInForce      *TimeInForceType
 	quantity         string
@@ -18,6 +19,8 @@ type CreateOrderService struct {
 	newClientOrderID *string
 	stopPrice        *string
 	workingType      *WorkingType
+	activationPrice  *string
+	callbackRate     *string
 }
 
 // Symbol set symbol
@@ -29,6 +32,12 @@ func (s *CreateOrderService) Symbol(symbol string) *CreateOrderService {
 // Side set side
 func (s *CreateOrderService) Side(side SideType) *CreateOrderService {
 	s.side = side
+	return s
+}
+
+// PositionSide set side
+func (s *CreateOrderService) PositionSide(positionSide PositionSideType) *CreateOrderService {
+	s.positionSide = &positionSide
 	return s
 }
 
@@ -80,6 +89,18 @@ func (s *CreateOrderService) WorkingType(workingType WorkingType) *CreateOrderSe
 	return s
 }
 
+// ActivationPrice set activationPrice
+func (s *CreateOrderService) ActivationPrice(activationPrice string) *CreateOrderService {
+	s.activationPrice = &activationPrice
+	return s
+}
+
+// CallbackRate set callbackRate
+func (s *CreateOrderService) CallbackRate(callbackRate string) *CreateOrderService {
+	s.callbackRate = &callbackRate
+	return s
+}
+
 func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, opts ...RequestOption) (data []byte, err error) {
 	r := &request{
 		method:   "POST",
@@ -91,6 +112,9 @@ func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, o
 		"side":     s.side,
 		"type":     s.orderType,
 		"quantity": s.quantity,
+	}
+	if s.positionSide != nil {
+		m["positionSide"] = *s.positionSide
 	}
 	if s.timeInForce != nil {
 		m["timeInForce"] = *s.timeInForce
@@ -109,6 +133,12 @@ func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, o
 	}
 	if s.workingType != nil {
 		m["workingType"] = *s.workingType
+	}
+	if s.activationPrice != nil {
+		m["activationPrice"] = *s.activationPrice
+	}
+	if s.callbackRate != nil {
+		m["callbackRate"] = *s.callbackRate
 	}
 	r.setFormParams(m)
 	data, err = s.c.callAPI(ctx, r, opts...)
@@ -134,21 +164,25 @@ func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 
 // CreateOrderResponse define create order response
 type CreateOrderResponse struct {
-	Symbol           string          `json:"symbol"`
-	OrderID          int64           `json:"orderId"`
-	ClientOrderID    string          `json:"clientOrderId"`
-	Price            string          `json:"price"`
-	OrigQuantity     string          `json:"origQty"`
-	ExecutedQuantity string          `json:"executedQty"`
-	CumQuote         string          `json:"cumQuote"`
-	ReduceOnly       bool            `json:"reduceOnly"`
-	Status           OrderStatusType `json:"status"`
-	StopPrice        string          `json:"stopPrice"`
-	TimeInForce      TimeInForceType `json:"timeInForce"`
-	Type             OrderType       `json:"type"`
-	Side             SideType        `json:"side"`
-	UpdateTime       int64           `json:"updateTime"`
-	WorkingType      WorkingType     `json:"workingType"`
+	Symbol           string           `json:"symbol"`
+	OrderID          int64            `json:"orderId"`
+	ClientOrderID    string           `json:"clientOrderId"`
+	Price            string           `json:"price"`
+	OrigQuantity     string           `json:"origQty"`
+	ExecutedQuantity string           `json:"executedQty"`
+	CumQuote         string           `json:"cumQuote"`
+	ReduceOnly       bool             `json:"reduceOnly"`
+	Status           OrderStatusType  `json:"status"`
+	StopPrice        string           `json:"stopPrice"`
+	TimeInForce      TimeInForceType  `json:"timeInForce"`
+	Type             OrderType        `json:"type"`
+	Side             SideType         `json:"side"`
+	UpdateTime       int64            `json:"updateTime"`
+	WorkingType      WorkingType      `json:"workingType"`
+	ActivatePrice    string           `json:"activatePrice"`
+	PriceRate        string           `json:"priceRate"`
+	AvgPrice         string           `json:"avgPrice"`
+	PositionSide     PositionSideType `json:"positionSide"`
 }
 
 // ListOpenOrdersService list opened orders
@@ -239,23 +273,28 @@ func (s *GetOrderService) Do(ctx context.Context, opts ...RequestOption) (res *O
 
 // Order define order info
 type Order struct {
-	Symbol           string          `json:"symbol"`
-	OrderID          int64           `json:"orderId"`
-	ClientOrderID    string          `json:"clientOrderId"`
-	Price            string          `json:"price"`
-	ReduceOnly       bool            `json:"reduceOnly"`
-	OrigQuantity     string          `json:"origQty"`
-	ExecutedQuantity string          `json:"executedQty"`
-	CumQuantity      string          `json:"cumQty"`
-	CumQuote         string          `json:"cumQuote"`
-	Status           OrderStatusType `json:"status"`
-	TimeInForce      TimeInForceType `json:"timeInForce"`
-	Type             OrderType       `json:"type"`
-	Side             SideType        `json:"side"`
-	StopPrice        string          `json:"stopPrice"`
-	Time             int64           `json:"time"`
-	UpdateTime       int64           `json:"updateTime"`
-	WorkingType      WorkingType     `json:"workingType"`
+	Symbol           string           `json:"symbol"`
+	OrderID          int64            `json:"orderId"`
+	ClientOrderID    string           `json:"clientOrderId"`
+	Price            string           `json:"price"`
+	ReduceOnly       bool             `json:"reduceOnly"`
+	OrigQuantity     string           `json:"origQty"`
+	ExecutedQuantity string           `json:"executedQty"`
+	CumQuantity      string           `json:"cumQty"`
+	CumQuote         string           `json:"cumQuote"`
+	Status           OrderStatusType  `json:"status"`
+	TimeInForce      TimeInForceType  `json:"timeInForce"`
+	Type             OrderType        `json:"type"`
+	Side             SideType         `json:"side"`
+	StopPrice        string           `json:"stopPrice"`
+	Time             int64            `json:"time"`
+	UpdateTime       int64            `json:"updateTime"`
+	WorkingType      WorkingType      `json:"workingType"`
+	ActivatePrice    string           `json:"activatePrice"`
+	PriceRate        string           `json:"priceRate"`
+	AvgPrice         string           `json:"avgPrice"`
+	OrigType         string           `json:"origType"`
+	PositionSide     PositionSideType `json:"positionSide"`
 }
 
 // ListOrdersService all account orders; active, canceled, or filled
@@ -384,22 +423,26 @@ func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 
 // CancelOrderResponse define response of canceling order
 type CancelOrderResponse struct {
-	ClientOrderID    string          `json:"clientOrderId"`
-	CumQuantity      string          `json:"cumQty"`
-	CumQuote         string          `json:"cumQuote"`
-	ExecutedQuantity string          `json:"executedQty"`
-	OrderID          int64           `json:"orderId"`
-	OrigQuantity     string          `json:"origQty"`
-	Price            string          `json:"price"`
-	ReduceOnly       bool            `json:"reduceOnly"`
-	Side             SideType        `json:"side"`
-	Status           OrderStatusType `json:"status"`
-	StopPrice        string          `json:"stopPrice"`
-	Symbol           string          `json:"symbol"`
-	TimeInForce      TimeInForceType `json:"timeInForce"`
-	Type             OrderType       `json:"type"`
-	UpdateTime       int64           `json:"updateTime"`
-	WorkingType      WorkingType     `json:"workingType"`
+	ClientOrderID    string           `json:"clientOrderId"`
+	CumQuantity      string           `json:"cumQty"`
+	CumQuote         string           `json:"cumQuote"`
+	ExecutedQuantity string           `json:"executedQty"`
+	OrderID          int64            `json:"orderId"`
+	OrigQuantity     string           `json:"origQty"`
+	Price            string           `json:"price"`
+	ReduceOnly       bool             `json:"reduceOnly"`
+	Side             SideType         `json:"side"`
+	Status           OrderStatusType  `json:"status"`
+	StopPrice        string           `json:"stopPrice"`
+	Symbol           string           `json:"symbol"`
+	TimeInForce      TimeInForceType  `json:"timeInForce"`
+	Type             OrderType        `json:"type"`
+	UpdateTime       int64            `json:"updateTime"`
+	WorkingType      WorkingType      `json:"workingType"`
+	ActivatePrice    string           `json:"activatePrice"`
+	PriceRate        string           `json:"priceRate"`
+	OrigType         string           `json:"origType"`
+	PositionSide     PositionSideType `json:"positionSide"`
 }
 
 // CancelAllOpenOrdersService cancel all open orders
