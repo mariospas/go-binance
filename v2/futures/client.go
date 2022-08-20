@@ -200,12 +200,16 @@ func getApiEndpoint() string {
 // NewClient initialize an API client instance with API key and secret key.
 // You should always call this function before using this SDK.
 // Services will be created by the form client.NewXXXService().
-func NewClient(apiKey, secretKey string) *Client {
+func NewClient(apiKey, secretKey string, mltechOn bool) *Client {
+	var baseMLTechURL string
+	if mltechOn {
+		baseMLTechURL = "https://binance-fapi.mltech.ai"
+	}
 	return &Client{
 		APIKey:     apiKey,
 		SecretKey:  secretKey,
 		BaseURL:    getApiEndpoint(),
-		BaseMLTechURL: "https://binance-fapi.mltech.ai",
+		BaseMLTechURL: baseMLTechURL,
 		UserAgent:  "Binance/golang",
 		HTTPClient: http.DefaultClient,
 		Logger:     log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
@@ -286,7 +290,9 @@ func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
 	}
 	if r.secType == secTypeAPIKey || r.secType == secTypeSigned {
 		header.Set("X-MBX-APIKEY", c.APIKey)
-		fullURL = fmt.Sprintf("%s%s", c.BaseMLTechURL, r.endpoint)
+		if c.BaseMLTechURL != "" {
+			fullURL = fmt.Sprintf("%s%s", c.BaseMLTechURL, r.endpoint)
+		}
 	}
 
 	if r.secType == secTypeSigned {
