@@ -242,20 +242,20 @@ func getAPIEndpoint() string {
 func NewClient(apiKey, secretKey string, mltechOn bool) *Client {
 	var baseMLTechURL string
 	if mltechOn {
-		baseMLTechURL = "https://binance-sapi.mltech.ai"
+		baseMLTechURL = "https://binance-sapi-1.mltech.ai"
 	}
 	return &Client{
-		APIKey:     apiKey,
-		SecretKey:  secretKey,
-		BaseURL:    getAPIEndpoint(),
-		BaseMLTechURL:    baseMLTechURL,
-		UserAgent:  "Binance/golang",
-		HTTPClient: http.DefaultClient,
-		Logger:     log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
+		APIKey:        apiKey,
+		SecretKey:     secretKey,
+		BaseURL:       getAPIEndpoint(),
+		BaseMLTechURL: baseMLTechURL,
+		UserAgent:     "Binance/golang",
+		HTTPClient:    http.DefaultClient,
+		Logger:        log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
 	}
 }
 
-//NewProxiedClient passing a proxy url
+// NewProxiedClient passing a proxy url
 func NewProxiedClient(apiKey, secretKey, proxyUrl string) *Client {
 	proxy, err := url.Parse(proxyUrl)
 	if err != nil {
@@ -291,16 +291,16 @@ type doFunc func(req *http.Request) (*http.Response, error)
 
 // Client define API client
 type Client struct {
-	APIKey     string
-	SecretKey  string
-	BaseURL    string
+	APIKey        string
+	SecretKey     string
+	BaseURL       string
 	BaseMLTechURL string
-	UserAgent  string
-	HTTPClient *http.Client
-	Debug      bool
-	Logger     *log.Logger
-	TimeOffset int64
-	do         doFunc
+	UserAgent     string
+	HTTPClient    *http.Client
+	Debug         bool
+	Logger        *log.Logger
+	TimeOffset    int64
+	do            doFunc
 }
 
 func (c *Client) debug(format string, v ...interface{}) {
@@ -343,7 +343,6 @@ func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
 			fullURL = fmt.Sprintf("%s%s", c.BaseMLTechURL, r.endpoint)
 		}
 	}
-
 
 	if r.secType == secTypeSigned {
 		raw := fmt.Sprintf("%s%s", queryString, bodyString)
