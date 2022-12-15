@@ -522,12 +522,12 @@ type WsOrderUpdate struct {
 	FeeCost           string          `json:"n"`
 	TransactionTime   int64           `json:"T"`
 	TradeId           int64           `json:"t"`
-	IsInOrderBook     bool            `json:"w"` // is the order in the order book?
-	IsMaker           bool            `json:"m"` // is this order maker?
-	CreateTime        int64           `json:"O"`
-	FilledQuoteVolume string          `json:"Z"` // the quote volume that already filled
-	LatestQuoteVolume string          `json:"Y"` // the quote volume for the latest trade
-	QuoteVolume       string          `json:"Q"`
+	//IsInOrderBook     bool            `json:"w"` // is the order in the order book?
+	//IsMaker           bool            `json:"m"` // is this order maker?
+	CreateTime        int64  `json:"O"`
+	FilledQuoteVolume string `json:"Z"` // the quote volume that already filled
+	LatestQuoteVolume string `json:"Y"` // the quote volume for the latest trade
+	QuoteVolume       string `json:"Q"`
 }
 
 type WsOCOUpdate struct {
