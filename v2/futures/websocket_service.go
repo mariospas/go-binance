@@ -1105,6 +1105,12 @@ func WsUserDataServe(listenKey string, handler WsUserDataHandler, errHandler Err
 		// Print the string
 		fmt.Printf("Message Received: %s\n", messageStr)
 
+		// Check if the message contains "TRADE_LITE"
+		if strings.Contains(messageStr, "TRADE_LITE") {
+			fmt.Printf("Message Skipped as trade lite is not supported\n")
+			return
+		}
+
 		event := new(WsUserDataEvent)
 		err := json.Unmarshal(message, event)
 		if err != nil {
