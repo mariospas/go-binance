@@ -1099,6 +1099,12 @@ func WsUserDataServe(listenKey string, handler WsUserDataHandler, errHandler Err
 	endpoint := fmt.Sprintf("%s/%s", getWsEndpoint(), listenKey)
 	cfg := newWsConfig(endpoint)
 	wsHandler := func(message []byte) {
+		// Convert byte array to string
+		messageStr := string(message)
+
+		// Print the string
+		fmt.Printf("Message Received: %s\n", messageStr)
+
 		event := new(WsUserDataEvent)
 		err := json.Unmarshal(message, event)
 		if err != nil {
